@@ -79,7 +79,7 @@ const cooldownMovesUnit = [];
 // 	return Math.floor(random);
 // };
 
-const possibleMovesPlayer = (cooldownMovesUnit, unitMoves) => {
+function possibleMovesPlayer(cooldownMovesUnit, unitMoves) {
 	let arr = [...unitMoves];
 	if (!cooldownMovesUnit.length) {
 		arr = [...unitMoves];
@@ -93,12 +93,12 @@ const possibleMovesPlayer = (cooldownMovesUnit, unitMoves) => {
 		}
 	}
 	return arr;
-};
+}
 
 function randomActionMonster(cooldownMoves, unitMoves) {
 	let arr = [...unitMoves];
 	if (!cooldownMoves.length) {
-		arr = [...monster.moves];
+		arr = [...unitMoves];
 	} else {
 		for (let i = 0; i < cooldownMoves.length; i++) {
 			for (let j = 0; j < unitMoves.length; j++) {
@@ -112,11 +112,28 @@ function randomActionMonster(cooldownMoves, unitMoves) {
 	return arr[randomMoveIndex];
 }
 
-let moves = 5;
+function decrCooldown(cooldowns) {
+	for (let i = 0; i < cooldowns.length; i++) {
+		cooldowns[i].cooldown = cooldowns[i].cooldown - 1;
+		if (cooldowns[i].cooldown === 0) {
+			cooldowns.splice(i, 1);
+		}
+	}
+	return;
+}
+
+let a = possibleMovesPlayer(cooldownMovesUnit, magic.moves);
+console.log(a);
+
+let moves = 7;
 let round = 1;
 while (moves > 0) {
 	console.log("---------------------------------------------");
 	console.log(`${round} раунд`);
+	if (round != 1) {
+		decrCooldown(cooldownMoves);
+		decrCooldown(cooldownMovesUnit);
+	}
 	let possiblemoveMonster = randomActionMonster(cooldownMoves, monster.moves);
 	console.log(possiblemoveMonster);
 	console.log("---------------------------------------------");
@@ -124,20 +141,22 @@ while (moves > 0) {
 	if (possiblemoveMonster.cooldown > 0) {
 		cooldownMoves.push({ name: possiblemoveMonster.name, cooldown: possiblemoveMonster.cooldown });
 	}
-	console.log(cooldownMoves);
+	// console.log(cooldownMoves);
 	console.log("---------------------------------------------");
 	let possiblePlayer = possibleMovesPlayer(cooldownMovesUnit, magic.moves);
-	// console.log(cooldownMovesUnit);
-	// console.log(cooldownMoves);
+	console.log(possiblePlayer);
+	console.log(cooldownMovesUnit);
 	console.log("Возможные ходы");
 	for (let i = 0; i < possiblePlayer.length; i++) {
-		console.log(`${i + 1}: ${possiblePlayer[i].name}`);
+		console.log(`${i}: ${possiblePlayer[i].name}`);
 	}
 	let movePlayer = readlineSync.question(`Сделайте свой ход: `);
-	cooldownMovesUnit.push({
-		name: possiblePlayer[movePlayer - 1].name,
-		cooldown: possiblePlayer[movePlayer - 1].cooldown,
-	});
+	if (possiblePlayer[movePlayer].cooldown > 0) {
+		cooldownMovesUnit.push({
+			name: possiblePlayer[movePlayer].name,
+			cooldown: possiblePlayer[movePlayer].cooldown,
+		});
+	}
 	console.log("---------------------------------------------");
 	moves--;
 	round++;

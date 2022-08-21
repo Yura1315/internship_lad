@@ -1,6 +1,7 @@
 const readlineSync = require("readline-sync");
 
 //---------------------------Задача 3(Быки и коровы)---------------------------------
+//Работает и с повторяющимися цифрами
 let numCoincidense = "";
 let numCoincidenseLength = 0;
 let numNotCoincidense = "";
@@ -9,22 +10,32 @@ let alreadyNumCoincidenseIndex = [];
 let attemp = 0;
 let attemps = 9;
 
-const randomNum = () => {
-	let random = 100 + Math.random() * (100000 + 1 - 100);
-	return Math.floor(random).toString();
+//=====================================================================
+const randomNum = (min, max) => {
+	let random = min + Math.random() * (max + 1 - min);
+	return Math.floor(random);
 };
 
-let variant = randomNum();
+let lengthNum = randomNum(3, 6);
+
+const hiddenNum = (len) => {
+	let arr = [];
+	for (let i = len; i > 0; i--) {
+		let num = randomNum(0, 9);
+		arr.push(String(num));
+	}
+	return arr.join("");
+};
+//=====================================================================
+let variant = hiddenNum(lengthNum);
 
 while (attemps > 0) {
-	const inputNum = readlineSync.question(`Введите число ${variant.length}-е число: `);
-	// console.log(inputNum);
-	// console.log(variant);
+	const inputNum = readlineSync.question(`Введите ${variant.length}-е число: `);
 	if (!Number(inputNum) || variant.length != inputNum.length) {
 		console.log("Введите корректное значение!");
 		console.log(`У вас осталось ${9 - attemp} попытки(-ок)`);
 	} else if (variant === inputNum) {
-		console.log(`Поздравляю вы победили за ${attemp} попытки(-ок)!`);
+		console.log(`Поздравляю вы победили за ${attemp + 1} попытки(-ок)!`);
 		return;
 	} else {
 		for (let i = 0; i < inputNum.length; i++) {
