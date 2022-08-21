@@ -74,11 +74,6 @@ const magic = {
 const cooldownMoves = [];
 const cooldownMovesUnit = [];
 
-// const randomIndex = (min, max) => {
-// 	let random = min + Math.random() * (max + 1 - min);
-// 	return Math.floor(random);
-// };
-
 function possibleMovesPlayer(cooldownMovesUnit, unitMoves) {
 	let arr = [...unitMoves];
 	if (!cooldownMovesUnit.length) {
@@ -122,35 +117,31 @@ function decrCooldown(cooldowns) {
 	return;
 }
 
-let a = possibleMovesPlayer(cooldownMovesUnit, magic.moves);
-console.log(a);
-
-let moves = 7;
+let flag = true;
 let round = 1;
-while (moves > 0) {
+while (flag) {
 	console.log("---------------------------------------------");
+	console.log("/////////////////////////////////////////////");
 	console.log(`${round} раунд`);
 	if (round != 1) {
 		decrCooldown(cooldownMoves);
 		decrCooldown(cooldownMovesUnit);
 	}
 	let possiblemoveMonster = randomActionMonster(cooldownMoves, monster.moves);
-	console.log(possiblemoveMonster);
 	console.log("---------------------------------------------");
 	console.log(`Лютый атакует!!!${possiblemoveMonster.name}`);
 	if (possiblemoveMonster.cooldown > 0) {
 		cooldownMoves.push({ name: possiblemoveMonster.name, cooldown: possiblemoveMonster.cooldown });
 	}
-	// console.log(cooldownMoves);
 	console.log("---------------------------------------------");
 	let possiblePlayer = possibleMovesPlayer(cooldownMovesUnit, magic.moves);
-	console.log(possiblePlayer);
-	console.log(cooldownMovesUnit);
+	// console.log(cooldownMovesUnit);
 	console.log("Возможные ходы");
 	for (let i = 0; i < possiblePlayer.length; i++) {
 		console.log(`${i}: ${possiblePlayer[i].name}`);
 	}
 	let movePlayer = readlineSync.question(`Сделайте свой ход: `);
+	console.log(possiblePlayer[movePlayer]);
 	if (possiblePlayer[movePlayer].cooldown > 0) {
 		cooldownMovesUnit.push({
 			name: possiblePlayer[movePlayer].name,
@@ -158,6 +149,62 @@ while (moves > 0) {
 		});
 	}
 	console.log("---------------------------------------------");
-	moves--;
+	console.log(`Вы наносите ответный удар!!!${possiblePlayer[movePlayer].name}`);
+	console.log("---------------------------------------------");
+
+	if (possiblemoveMonster.physicalDmg > 0) {
+		if (possiblePlayer[movePlayer].physicArmorPercents) {
+			let damage = possiblemoveMonster.physicalDmg * (1 - possiblePlayer[movePlayer].physicArmorPercents / 100);
+			magic.maxHealth = magic.maxHealth - damage;
+		} else {
+			magic.maxHealth = magic.maxHealth - possiblemoveMonster.physicalDmg;
+		}
+	}
+
+	if (possiblePlayer[movePlayer].physicalDmg > 0) {
+		if (possiblemoveMonster.physicArmorPercents) {
+			let damage = possiblePlayer[movePlayer].physicalDmg * (1 - possiblemoveMonster.physicArmorPercents / 100);
+			monster.maxHealth = monster.maxHealth - damage;
+		} else {
+			monster.maxHealth = monster.maxHealth - possiblePlayer[movePlayer].physicalDmg;
+		}
+	}
+
+	if (possiblemoveMonster.magicDmg > 0) {
+		if (possiblePlayer[movePlayer].magicArmorPercents) {
+			let damage = possiblemoveMonster.magicDmg * (1 - possiblePlayer[movePlayer].magicArmorPercents / 100);
+			magic.maxHealth = magic.maxHealth - damage;
+		} else {
+			magic.maxHealth = magic.maxHealth - possiblemoveMonster.magicDmg;
+		}
+	}
+
+	if (possiblePlayer[movePlayer].magicDmg > 0) {
+		if (possiblemoveMonster.magicArmorPercents) {
+			let damage = possiblePlayer[movePlayer].magicDmg * (1 - possiblemoveMonster.magicArmorPercents / 100);
+			monster.maxHealth = monster.maxHealth - damage;
+		} else {
+			monster.maxHealth = monster.maxHealth - possiblePlayer[movePlayer].magicDmg;
+		}
+	}
+
+	if (monster.maxHealth <= 0 || magic.maxHealth <= 0) {
+		if (monster.maxHealth > magic.maxHealth) {
+			console.log("Победа за Лютым!!!");
+			console.log("---------------------------------------------");
+			flag = false;
+		} else if (monster.maxHealth === magic.maxHealth) {
+			console.log("Погибли оба героя!!!Ничья!!!");
+			console.log("---------------------------------------------");
+		} else {
+			console.log("Победа за Евстафием!!!");
+			console.log("---------------------------------------------");
+			flag = false;
+		}
+	}
+
+	console.log(monster.maxHealth);
+	console.log(magic.maxHealth);
+
 	round++;
 }
