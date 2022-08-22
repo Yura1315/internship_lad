@@ -141,7 +141,12 @@ while (flag) {
 		console.log(`${i}: ${possiblePlayer[i].name}`);
 	}
 	let movePlayer = readlineSync.question(`Сделайте свой ход: `);
-	console.log(possiblePlayer[movePlayer]);
+	if (!isFinite(movePlayer) || movePlayer > possiblePlayer.length) {
+		console.log("---------------------------------------------");
+		console.log("Введите корректное значение!!!");
+		console.log("---------------------------------------------");
+		movePlayer = readlineSync.question(`Сделайте свой ход: `);
+	}
 	if (possiblePlayer[movePlayer].cooldown > 0) {
 		cooldownMovesUnit.push({
 			name: possiblePlayer[movePlayer].name,
